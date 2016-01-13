@@ -4,18 +4,20 @@ import com.fengpeiyuan.util.BitUtil;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.fengpeiyuan.dao.redis.shard.RedisShard;
 import com.fengpeiyuan.dao.redis.shard.exception.RedisAccessException;
+import org.apache.log4j.Logger;
 
 public class Operation {
 	private RedisShard redisShard;
+	final static Logger logger = Logger.getLogger(Operation.class);
 
 	/**
 	 * initialization amount
 	 * @param goodsId
 	 * @param initAmount
 	 * @return
-	 * @throws Exception
+	 *
      */
-	public Integer stockInit(String goodsId,Integer initAmount) throws Exception {
+	public Integer stockInit(String goodsId,Integer initAmount) {
 		if(initAmount<0)
 			return 0;
 
@@ -33,7 +35,7 @@ public class Operation {
 			return this.getRedisShard().bitcount(goodsId).intValue();
 
 		}catch (Exception e){
-			e.printStackTrace();
+			logger.error("exception in stock init,",e);
 			return 0;
 		}
 	}
@@ -42,10 +44,14 @@ public class Operation {
 	 * query remain
 	 * @param goodsId
 	 * @return
-	 * @throws Exception
      */
-	public Integer stockRemain(String goodsId) throws Exception {
-		return this.getRedisShard().bitcount(goodsId).intValue();
+	public Integer stockRemain(String goodsId) {
+		try {
+			return this.getRedisShard().bitcount(goodsId).intValue();
+		}catch (Exception e){
+			logger.error("exception when query stock remaink",e);
+			return -1;
+		}
 	}
 
 
@@ -53,7 +59,7 @@ public class Operation {
 	 * deduct
 	 * @param goodsId
 	 * @return
-	 * @throws Exception
+	 *
      */
 	public Integer stockDeductOne(String goodsId) {
 		Boolean ori = Boolean.FALSE;
@@ -69,7 +75,7 @@ public class Operation {
 				ori = this.getRedisShard().setbit(goodsId, offset, Boolean.FALSE);
 			}
 		}catch (Throwable t){
-			t.printStackTrace();
+			logger.error("error happend when deduct",t);
 			return -1;
 		}
 		return offset;
@@ -80,16 +86,20 @@ public class Operation {
 	 * @param goodsId
 	 * @param offset
 	 * @return
-	 * @throws Exception
+	 *
      */
-	public Boolean stockSendbackOne(String goodsId,Integer offset) throws Exception {
-		Boolean ori = this.getRedisShard().setbit(goodsId, offset, Boolean.TRUE);
-		if(ori==Boolean.TRUE){
-			
+	public Boolean stockSendbackOne(String goodsId,Integer offset) {
+		if(offset<0)
+			return Boolean.FALSE;
+		try {
+			Boolean ori = this.getRedisShard().setbit(goodsId, offset, Boolean.TRUE);
+			if (ori == Boolean.TRUE)
+				throw new Exception("cannot sendback because not deduct at this position");
+			return Boolean.TRUE;
+		}catch (Exception e){
+			logger.error("exception when stock sendback",e);
 			return Boolean.FALSE;
 		}
-
-		return Boolean.TRUE;
 	}
 
 
@@ -97,13 +107,18 @@ public class Operation {
 	 * clean to zero
 	 * @param goodsId
 	 * @return
-	 * @throws RedisAccessException
+	 *
      */
-	public Boolean stockClear(String goodsId) throws RedisAccessException {
-		Long ret = this.getRedisShard().del(goodsId);
-		if(ret>0)
-			return Boolean.TRUE;
-		return Boolean.FALSE;
+	public Boolean stockClear(String goodsId) {
+		try {
+			Long ret = this.getRedisShard().del(goodsId);
+			if (ret > 0)
+				return Boolean.TRUE;
+			return Boolean.FALSE;
+		}catch (Exception e){
+			logger.error("operation fail when clear stock",e);
+			return Boolean.FALSE;
+		}
 	}
 
 
