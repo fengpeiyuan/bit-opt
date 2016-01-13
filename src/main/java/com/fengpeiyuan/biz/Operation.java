@@ -3,7 +3,6 @@ package com.fengpeiyuan.biz;
 import com.fengpeiyuan.util.BitUtil;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.fengpeiyuan.dao.redis.shard.RedisShard;
-import com.fengpeiyuan.dao.redis.shard.exception.RedisAccessException;
 import org.apache.log4j.Logger;
 
 public class Operation {
@@ -58,7 +57,7 @@ public class Operation {
 	/**
 	 * deduct
 	 * @param goodsId
-	 * @return
+	 * @return position decuct
 	 *
      */
 	public Integer stockDeductOne(String goodsId) {
