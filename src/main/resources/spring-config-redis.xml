@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	">
+
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:redis.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="redisShard" class="com.fengpeiyuan.dao.redis.shard.RedisShard" init-method="init">
+        <property name="maxActive" value="${redis.maxActive}"/>
+        <property name="maxIdle" value="${redis.maxIdle}"/>
+        <property name="maxWait" value="${redis.maxWait}"/>
+        <property name="testOnBorrow" value="${redis.testOnBorrow}"/>
+        <property name="timeout" value="${redis.timeout}"/>
+        <!-- host:port:password[可选,password中不要有":"],-->
+        <property name="confStr" value="${redis.connection}"/>
+    </bean>
+    
+    <bean id="operation" class="com.fengpeiyuan.biz.Operation">
+        <property name="redisShard" ref="redisShard"/>
+    </bean>
+	
+</beans>
