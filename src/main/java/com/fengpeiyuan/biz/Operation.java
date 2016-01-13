@@ -8,8 +8,7 @@ import com.fengpeiyuan.dao.redis.shard.exception.RedisAccessException;
 public class Operation {
 	private RedisShard redisShard;
 
-	public String stockInit(String goodsId,Integer initAmount) throws RedisAccessException {
-		System.out.println("initAmount:"+initAmount);
+	public Integer stockInit(String goodsId,Integer initAmount) throws Exception {
 		byte[] amountByte = BitUtil.getBytesByAmount(initAmount);
 
 		/* debug print
@@ -19,44 +18,46 @@ public class Operation {
 		}
 		 */
 
-		String ret = this.getRedisShard().set(goodsId,amountByte);
-		return ret;
+		this.getRedisShard().set(goodsId,amountByte);
+		Integer remain = this.getRedisShard().bitcount(goodsId).intValue();
+		return remain;
 	}
 
-	public Long stockRemain(String goodsId) throws RedisAccessException {
-		Long ret = this.getRedisShard().bitcount(goodsId);
-		return ret;
+	public Integer stockRemain(String goodsId) throws Exception {
+		return this.getRedisShard().bitcount(goodsId).intValue();
 	}
 
 
-	public Long stockDeductOne(String goodsId) throws RedisAccessException {
+	public Integer stockDeductOne(String goodsId) throws Exception {
 		Boolean ori = Boolean.FALSE;
-		long offset = 0L;
+		Integer offset = 0;
 		try {
-			long amount = this.getRedisShard().bitcount(goodsId);
+			long remain = this.getRedisShard().bitcount(goodsId);
 			while (!ori) {
-				offset = this.getRedisShard().bitpos(goodsId,Boolean.TRUE);
-				if(amount == offset)
-					offset = 0L;
+				offset = this.getRedisShard().bitpos(goodsId,Boolean.TRUE).intValue();
+				if(remain == offset)
+					offset = 0;
 				ori = this.getRedisShard().setbit(goodsId, offset, Boolean.FALSE);
 			}
 		}catch (Throwable t){
 			t.printStackTrace();
-			return -1L;
+			return -1;
 		}
 		return offset;
 	}
 
-	public Boolean stockSendbackOne(String goodsId,Long offset) throws Exception {
+	public Boolean stockSendbackOne(String goodsId,Integer offset) throws Exception {
 		Boolean ori = this.getRedisShard().setbit(goodsId, offset, Boolean.TRUE);
 		if(ori==Boolean.TRUE)
 			throw new Exception("cannot sendback because not deduct at this position");
 		return Boolean.TRUE;
 	}
 
-	public Long stockClear(String goodsId) throws RedisAccessException {
+	public Boolean stockClear(String goodsId) throws RedisAccessException {
 		Long ret = this.getRedisShard().del(goodsId);
-		return ret;
+		if(ret>0)
+			return Boolean.TRUE;
+		return Boolean.FALSE;
 	}
 
 
@@ -68,22 +69,24 @@ public class Operation {
 
 		operation.stockInit(goodsId,10);
 
-		Long remain = operation.stockRemain(goodsId);
+		Integer remain = operation.stockRemain(goodsId);
         System.out.println("remain:"+remain);
 
-		Long pos = operation.stockDeductOne(goodsId);
+		Integer pos = operation.stockDeductOne(goodsId);
 		System.out.println("decuct one pos:"+pos);
 
-		Long remain2 = operation.stockRemain(goodsId);
+		Integer remain2 = operation.stockRemain(goodsId);
 		System.out.println("remain:"+remain2);
-
 
 		operation.stockSendbackOne(goodsId,pos);
 
-		Long remain3 = operation.stockRemain(goodsId);
+		Integer remain3 = operation.stockRemain(goodsId);
 		System.out.println("remain:"+remain3);
 
+		operation.stockClear(goodsId);
 
+		Integer remain4 = operation.stockRemain(goodsId);
+		System.out.println("remain:"+remain4);
 	}
 
 
