@@ -10,7 +10,6 @@ import redis.clients.jedis.JedisShardInfo;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.ShardedJedisPool;
-import redis.clients.jedis.exceptions.JedisDataException;
 
 public class RedisShard {
 	private static Logger log = Logger.getLogger(RedisShard.class);
@@ -41,7 +40,7 @@ public class RedisShard {
                 int port = Integer.valueOf(wAddressArr[1]);
                 JedisShardInfo jedisShardInfo = new JedisShardInfo(host, port, this.timeout);
                 log.info("confList:" + jedisShardInfo.toString());
-                //is password need
+
                 if (wAddressArr.length == 3 && !wAddressArr[2].isEmpty()) {
                     jedisShardInfo.setPassword(wAddressArr[2]);
                 }
@@ -73,7 +72,6 @@ public class RedisShard {
         boolean flag = true;
         ShardedJedis j = null;
 		String result = null;
-        Pipeline p = null;
         try {
 			j = wPool.getResource();
 			result = j.getShard(key).set(key.getBytes("UTF-8"), value);
@@ -85,7 +83,6 @@ public class RedisShard {
             if (flag) {
                 wPool.returnResource(j);
             }
-            p = null;
         }
         return result;
     }
