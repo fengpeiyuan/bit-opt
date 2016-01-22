@@ -35,7 +35,7 @@ public class Operation {
 
 		}catch (Exception e){
 			logger.error("exception in stock init,",e);
-			return 0;
+			return -1;
 		}
 	}
 
@@ -73,12 +73,38 @@ public class Operation {
 					offset = 0;
 				ori = this.getRedisShard().setbit(goodsId, offset, Boolean.FALSE);
 			}
-		}catch (Throwable t){
+		}catch (Exception t){
 			logger.error("error happend when deduct",t);
 			return -1;
 		}
 		return offset;
 	}
+
+	public static String shaDeductOneInLua;
+	public static String scriptDeductOneInLua = "";
+
+	/**
+	 *
+	 * @param goodsId
+	 * @return
+     */
+	public Integer stockDeductOneInLua(String goodsId) {
+		Integer result = -1;
+		try {
+			if(null == Operation.shaDeductOneInLua){
+				Operation.shaDeductOneInLua = this.getRedisShard().scriptLoadSingleShard(goodsId, Operation.scriptDeductOneInLua);
+				result = (Integer) this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaDeductOneInLua,0,new String[0]);
+			}else{
+				result = (Integer) this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaDeductOneInLua,0,new String[0]);
+			}
+
+		}catch (Exception t){
+			logger.error("error happend when deduct lua",t);
+			return -1;
+		}
+		return result;
+	}
+
 
 	/**
 	 * rockback opration

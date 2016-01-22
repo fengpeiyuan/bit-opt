@@ -222,6 +222,95 @@ public class RedisShard {
 	}
 
 
+	/**
+	 *
+	 * @param keyShard
+	 * @param sha1
+	 * @return
+	 * @throws RedisAccessException
+     */
+	public Boolean scriptExistsSingleShard(String keyShard, String sha1) throws RedisAccessException {
+		if(null == keyShard ||sha1 == null) throw new RedisAccessException("keyShard or sha1 sent to redis cannot be null");
+		boolean flag = true;
+		ShardedJedis j = null;
+		Boolean result = null;
+		try {
+			j = wPool.getResource();
+			result = j.getShard(keyShard).scriptExists(sha1);
+		} catch (Exception ex) {
+			flag = false;
+			wPool.returnBrokenResource(j);
+			throw new RedisAccessException(ex+","+j.getShardInfo(keyShard).toString());
+		} finally {
+			if (flag) {
+				wPool.returnResource(j);
+			}
+		}
+		return result;
+	}
+
+
+	/**
+	 *
+	 * @param keyShard
+	 * @param script
+	 * @return
+	 * @throws RedisAccessException
+     */
+	public String scriptLoadSingleShard(String keyShard, String script) throws RedisAccessException {
+		if(null == keyShard ||script == null) throw new RedisAccessException("keyShard or script sent to redis cannot be null");
+		boolean flag = true;
+		ShardedJedis j = null;
+		String result = null;
+		try {
+			j = wPool.getResource();
+			result = j.getShard(keyShard).scriptLoad(script);
+		} catch (Exception ex) {
+			flag = false;
+			wPool.returnBrokenResource(j);
+			throw new RedisAccessException(ex+","+j.getShardInfo(keyShard).toString());
+		} finally {
+			if (flag) {
+				wPool.returnResource(j);
+			}
+		}
+		return result;
+	}
+
+
+	/**
+	 *
+	 * @param keyShard
+	 * @param script
+	 * @param keyCount
+	 * @param params
+	 * @return
+	 * @throws RedisAccessException
+     */
+	public Object evalshaSingleShard(String keyShard, String script,int keyCount, String... params) throws RedisAccessException {
+		if(null == keyShard ||script == null) throw new RedisAccessException("keyShard or script sent to redis cannot be null");
+		boolean flag = true;
+		ShardedJedis j = null;
+		Object result = null;
+		try {
+			j = wPool.getResource();
+			result = j.getShard(keyShard).evalsha(script,keyCount, params);
+		} catch (Exception ex) {
+			flag = false;
+			wPool.returnBrokenResource(j);
+			throw new RedisAccessException(ex+","+j.getShardInfo(keyShard).toString());
+		} finally {
+			if (flag) {
+				wPool.returnResource(j);
+			}
+		}
+		return result;
+	}
+
+
+
+
+
 
 	public static Logger getLog() {
 		return log;
