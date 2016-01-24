@@ -42,6 +42,25 @@ public class OperationTest {
         assertTrue(ret>=0);
     }
 
+    @Test
+    public void testStockDeductOneInLua(){
+        String goodsId = "a";
+        Operation operation = (Operation)context.getBean("operation");
+        Integer ret = operation.stockDeductOneInLua(goodsId);
+        assertTrue(ret>=0);
+        Integer ret2 = operation.stockDeductOneInLua(goodsId);
+        assertTrue(ret2>=0);
+    }
+
+    @Test
+    public void testStockRefillByNumberInLua(){
+        String goodsId = "a";
+        Operation operation = (Operation)context.getBean("operation");
+        Integer ret = operation.stockRefillByNumber(goodsId,1);
+        assertTrue(ret>=0);
+
+    }
+
 
     @Test
     public void testStockSendbackOne(){
