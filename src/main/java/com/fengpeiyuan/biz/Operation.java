@@ -95,8 +95,14 @@ public class Operation {
 		Integer result = -1;
 		try {
 			if(null == Operation.shaDeductOneInLua){
-				Operation.shaDeductOneInLua = this.getRedisShard().scriptLoadSingleShard(goodsId, Operation.scriptDeductOneInLua);
-				result = ((Long) this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaDeductOneInLua,1,goodsId)).intValue();
+				if(this.getRedisShard().scriptExistsSingleShard(goodsId,"36c4584b8f58b58c1abf89a50fcf223dddf34537")){
+					Operation.shaDeductOneInLua = "36c4584b8f58b58c1abf89a50fcf223dddf34537";
+					result = ((Long)this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaDeductOneInLua,1,goodsId)).intValue();
+				}else {
+					Operation.shaDeductOneInLua = this.getRedisShard().scriptLoadSingleShard(goodsId, Operation.scriptDeductOneInLua);
+					/*System.out.print(Operation.shaDeductOneInLua);*/
+					result = ((Long) this.getRedisShard().evalshaSingleShard(goodsId, Operation.shaDeductOneInLua, 1, goodsId)).intValue();
+				}
 			}else{
 				result = ((Long)this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaDeductOneInLua,1,goodsId)).intValue();
 			}
@@ -148,8 +154,14 @@ public class Operation {
 			return  result;
 		try {
 			if(null == Operation.shaRefillByNumberInLua){
-				Operation.shaRefillByNumberInLua = this.getRedisShard().scriptLoadSingleShard(goodsId, Operation.scriptRefillByNumberInLua);
-				result = ((Long) this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaRefillByNumberInLua,2,goodsId,number.toString())).intValue();
+				if(this.getRedisShard().scriptExistsSingleShard(goodsId,"c374b953291d79fb91b3cf96fe9249f6852d4c23")){
+					Operation.shaRefillByNumberInLua = "c374b953291d79fb91b3cf96fe9249f6852d4c23";
+					result = ((Long)this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaRefillByNumberInLua,2,goodsId,number.toString())).intValue();
+				}else {
+					Operation.shaRefillByNumberInLua = this.getRedisShard().scriptLoadSingleShard(goodsId, Operation.scriptRefillByNumberInLua);
+					/*System.out.print(Operation.shaRefillByNumberInLua);*/
+					result = ((Long) this.getRedisShard().evalshaSingleShard(goodsId, Operation.shaRefillByNumberInLua, 2, goodsId, number.toString())).intValue();
+				}
 			}else{
 				result = ((Long)this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaRefillByNumberInLua,2,goodsId,number.toString())).intValue();
 			}

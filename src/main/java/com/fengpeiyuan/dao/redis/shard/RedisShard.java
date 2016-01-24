@@ -233,7 +233,7 @@ public class RedisShard {
 		if(null == keyShard ||sha1 == null) throw new RedisAccessException("keyShard or sha1 sent to redis cannot be null");
 		boolean flag = true;
 		ShardedJedis j = null;
-		Boolean result = null;
+		Boolean result = Boolean.FALSE;
 		try {
 			j = wPool.getResource();
 			result = j.getShard(keyShard).scriptExists(sha1);
