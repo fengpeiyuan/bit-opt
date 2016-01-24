@@ -43,7 +43,7 @@
      front | 0 | 0 | 0 | 1 | 1 | 1 | 1 | ... | 1 | ... back
            ------------------------------------------
                                  |    
-           		refill from here 
+                          refill from here 
 
 ## Using
 	* fetch 1 will return the position also
