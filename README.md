@@ -1,14 +1,14 @@
 # Bitmap Operation on Redis  
 
 * An goods stock model store on redis bitmap  
-* Command of redis using are SETBIT, BITCOUNT, BITPOS, GETBIT, SET, DEL 
+* Command of redis using are SETBIT, BITCOUNT, BITPOS, GETBIT, SET, DEL, EXISTS and lua 
 
 ## Store in redis like:
 	
 1.overall
 
      ---------------------------------------
-     | 1 | 1 | 1 | 1 | 1 | 0 | 0 | ... | 0 | ... back
+     | 1 | 1 | 1 | 1 | 1 | 0 | 0 | ... | 0 | ... 
      ---------------------------------------
 	 
 	1 - has one stock in this unit
@@ -17,7 +17,7 @@
 2.deduct
 
      ------------------------------------------
-     | 0 | 0 | 1~0 | 1 | 1 | 0 | 0 | ... | 0 | ... back
+     | 0 | 0 | 1~0 | 1 | 1 | 0 | 0 | ... | 0 | ... 
      ------------------------------------------	
        |        |
      deducted  deducting one
@@ -33,12 +33,12 @@
 
 4.refill 
 
-    <<before refilil>>
+    before refill
            ------------------------------------------
-     front | 0 | 1 | 0 | 1 | 1 | 0 | 0 | ... | 0 | ... back
+     front | 0 | 0 | 0 | 1 | 1 | 0 | 0 | ... | 0 | ... back
            ------------------------------------------
 
-    <<after refill>>
+    after refill
            ------------------------------------------
      front | 0 | 0 | 0 | 1 | 1 | 1 | 1 | ... | 1 | ... back
            ------------------------------------------
@@ -47,7 +47,7 @@
 
 ## Using
 	* fetch 1 will return the position also
-	* sendback 1 must provice the position be fetched   
+	* send back 1 must provice the position be fetched   
 
 ## License
 
