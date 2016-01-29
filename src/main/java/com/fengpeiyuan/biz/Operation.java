@@ -1,14 +1,13 @@
 package com.fengpeiyuan.biz;
 
 import com.fengpeiyuan.util.BitUtil;
-import org.apache.log4j.pattern.IntegerPatternConverter;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.fengpeiyuan.dao.redis.shard.RedisShard;
 import org.apache.log4j.Logger;
 
 public class Operation {
 	private RedisShard redisShard;
 	final static Logger logger = Logger.getLogger(Operation.class);
+
 
 	/**
 	 * initialization amount
@@ -114,6 +113,61 @@ public class Operation {
 		return result;
 	}
 
+	class DeductResult {
+		private Integer posFrom = -1;
+		private Integer posTo = -1;
+
+		public Integer getPosFrom() {
+			return posFrom;
+		}
+
+		public void setPosFrom(Integer posFrom) {
+			this.posFrom = posFrom;
+		}
+
+		public Integer getPosTo() {
+			return posTo;
+		}
+
+		public void setPosTo(Integer posTo) {
+			this.posTo = posTo;
+		}
+
+
+	}
+
+	/**
+	 *
+	 * @param goodsId
+	 * @param number
+     * @return
+     */
+	private static String shaDeductByNumberInLua;
+	private static String scriptDeductByNumberInLua = "";
+
+	public DeductResult stockDeductByNumberInLua(String goodsId,Integer number) {
+		DeductResult result = new DeductResult();
+		try {
+			if(null == Operation.shaDeductOneInLua){
+				if(this.getRedisShard().scriptExistsSingleShard(goodsId,"")){
+					Operation.shaDeductOneInLua = "";
+//					result = ((Long)this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaDeductByNumberInLua,2,goodsId,number.toString())).intValue();
+				}else {
+					Operation.shaDeductOneInLua = this.getRedisShard().scriptLoadSingleShard(goodsId, Operation.scriptDeductByNumberInLua);
+					/*System.out.print(Operation.shaDeductOneInLua);*/
+//					result = ((Long) this.getRedisShard().evalshaSingleShard(goodsId, Operation.shaDeductByNumberInLua, 2, goodsId,number.toString())).intValue();
+				}
+			}else{
+//				result = ((Long)this.getRedisShard().evalshaSingleShard(goodsId,Operation.shaDeductByNumberInLua,2,goodsId,number.toString())).intValue();
+			}
+
+		}catch (Exception t){
+			logger.error("error happend when stockDeductByNumberInLua",t);
+			return result;
+		}
+		return result;
+	}
+
 
 	/**
 	 * rockback opration
@@ -194,32 +248,6 @@ public class Operation {
 
 
 	public static void main(String[] args) throws Exception {
-//		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"spring-config-redis.xml"});
-//        context.start();
-//		String goodsId = "a";
-//        Operation operation = (Operation)context.getBean("operation");
-//
-//		operation.stockInit(goodsId,10);
-//
-//		Integer remain = operation.stockRemain(goodsId);
-//        System.out.println("remain:"+remain);
-//
-//		Integer pos = operation.stockDeductOne(goodsId);
-//		System.out.println("decuct one pos:"+pos);
-//
-//		Integer remain2 = operation.stockRemain(goodsId);
-//		System.out.println("remain:"+remain2);
-//
-//		operation.stockSendbackOne(goodsId,pos);
-//
-//		Integer remain3 = operation.stockRemain(goodsId);
-//		System.out.println("remain:"+remain3);
-//
-//		operation.stockClear(goodsId);
-//
-//		Integer remain4 = operation.stockRemain(goodsId);
-//		System.out.println("remain:"+remain4);
-
 		System.out.print(Integer.MAX_VALUE);
 	}
 
