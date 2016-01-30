@@ -2,6 +2,7 @@
 
 * An goods stock model store on redis bitmap  
 * Command of redis using are SETBIT, BITCOUNT, BITPOS, GETBIT, SET, DEL, EXISTS and lua 
+* Redis sharding support
 
 ## Store in redis like:
 	
